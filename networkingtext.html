@@ -58,9 +58,7 @@
       </button>
    </div>
    <script>
-
       //----------------------Video-------------------------------------
-      chunks_storeeee = [];
       function start_video_Recording() {
          //To stores the recorded media
          let chunks = [];
@@ -68,59 +66,54 @@
          const endBtn = document.getElementById("video_en");
 
          // Access the camera and microphone
-         navigator.mediaDevices.getUserMedia(
-            {
-               audio: true, video: true,
-               video: {
-                  width: { ideal: 1280 },
-                  height: { ideal: 1024 }
-               }
+         navigator.mediaDevices.getUserMedia({
+            audio: true, video: true,
+            video: {
+               width: { ideal: 1280 },
+               height: { ideal: 1024 }
             }
-         )
-            .then((mediaStreamObj) => {
+         }).then((mediaStreamObj) => {
+            // Create a new MediaRecorder instance
+            const medRec = new MediaRecorder(mediaStreamObj);
+            window.mediaStream = mediaStreamObj;
+            window.mediaRecorder = medRec;
+            medRec.start(3000);
 
-               // Create a new MediaRecorder instance
-               const medRec = new MediaRecorder(mediaStreamObj);
-               window.mediaStream = mediaStreamObj;
-               window.mediaRecorder = medRec;
-               medRec.start(3000);
+            //when recorded data is available then push into chunkArr array
+            medRec.ondataavailable = (e) => {
+               //send the data 
+               console.log(e);
+               chunks.push(e.data);
+            };
 
-               //when recorded data is available then push into chunkArr array
-               medRec.ondataavailable = (e) => {
-                  //send the data 
-                  console.log(e);
-                  chunks.push(e.data);
-                  chunks_storeeee.push(e.data);
-               };
+            //stop the video recording
+            medRec.onstop = () => {
+               // Assuming you have an array of MediaRecorder objects called `recordings`
+               var formData = new FormData();
 
-               //stop the video recording
-               medRec.onstop = () => {
-                  // Assuming you have an array of MediaRecorder objects called `recordings`
-                  var formData = new FormData();
+               chunks.forEach(function (chunk, index) {
+                  var blob = new Blob([chunk], { type: 'video/mp4'});
+                  formData.append('chunk-' + index, blob, 'chunk-' + index + '.mp4');
+               });
 
-                  chunks.forEach(function (chunk, index) {
-                     var blob = new Blob([chunk], { type: 'video/mp4' });
-                     formData.append('chunk-' + index, blob, 'chunk-' + index + '.mp4');
-                  });
-
-                  $.ajax({
-                     url: 'http://localhost:3000/upload',
-                     type: 'POST',
-                     data: formData,
-                     processData: false,
-                     contentType: false,
-                     success: function (response) {
-                        console.log('Upload successful');
-                     },
-                     error: function (error) {
-                        console.log('Upload failed:', error);
-                     }
-                  });
-               };
-               document.getElementById("vidBox").srcObject = mediaStreamObj;
-               startBtn.disabled = true;
-               endBtn.disabled = false;
-            });
+               $.ajax({
+                  url: 'http://localhost:3000/upload',
+                  type: 'POST',
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  success: function (response) {
+                     console.log('Upload successful');
+                  },
+                  error: function (error) {
+                     console.log('Upload failed:', error);
+                  }
+               });
+            };
+            document.getElementById("vidBox").srcObject = mediaStreamObj;
+            startBtn.disabled = true;
+            endBtn.disabled = false;
+         });
       }
       function stop_Recording(end, start) {
          //stop all tracks
