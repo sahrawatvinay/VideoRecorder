@@ -2,10 +2,6 @@ const express = require('express');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const concat = require('concat-stream');
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-const ffmpeg = require('fluent-ffmpeg');
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 
 const app = express();
@@ -30,7 +26,6 @@ app.post('/upload', upload.any(), async (req, res) => {
 
             // set the output file path
             const outputName = Date.parse(new Date) + ".mp4";
-            const outputLocation = 'recordings/' + outputName;
             const outputFilePath = path.join(__dirname, 'recordings/', outputName);
 
             // write the merged file buffer to the output file path

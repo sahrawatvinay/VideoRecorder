@@ -57,17 +57,6 @@
          <i class="fa fa-stop"></i>
       </button>
    </div>
-   <!-- ------------ -->
-   <br>
-   <hr>
-   <!-- ------------ -->
-   <div class="display-none" id="audio_rec">
-      <h3> Record Audio</h3>
-      <button type="button" id="aud_st" onclick="start_audio_Recording()"><i class="fa fa-play"></i>
-      </button>
-      <button type="button" id="aud_en" disabled onclick="stop_Recording(this, document.getElementById('aud_st'))"> <i
-            class="fa fa-stop"></i></button>
-   </div>
    <script>
 
       //----------------------Video-------------------------------------
@@ -129,44 +118,6 @@
                   });
                };
                document.getElementById("vidBox").srcObject = mediaStreamObj;
-               startBtn.disabled = true;
-               endBtn.disabled = false;
-            });
-      }
-      //--------------------audio---------------------------------------
-
-      function start_audio_Recording() {
-         //To stores the recorded media
-         let chunksArr = [];
-         const startBtn = document.getElementById("aud_st");
-         const endBtn = document.getElementById("aud_en");
-
-         // Access the camera and microphone
-         navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then((mediaStream) => {
-               const medRec = new MediaRecorder(mediaStream);
-               window.mediaStream = mediaStream;
-               window.mediaRecorder = medRec;
-               medRec.start();
-
-               //when recorded data is available then push into chunkArr array
-               medRec.ondataavailable = (e) => {
-                  chunksArr.push(e.data);
-               };
-
-               //stop the audio recording
-               medRec.onstop = () => {
-                  const blob = new Blob(chunksArr, { type: "audio/mpeg" });
-                  chunksArr = [];
-
-                  // create audio element and store the media which is recorded
-                  const recMediaFile = document.createElement("audio");
-                  recMediaFile.controls = true;
-                  const RecUrl = URL.createObjectURL(blob);
-                  recMediaFile.src = RecUrl;
-                  document.getElementById(`audio_rec`).append(
-                     recMediaFile);
-               };
                startBtn.disabled = true;
                endBtn.disabled = false;
             });
