@@ -43,13 +43,9 @@
             window.mediaRecorder = medRec;
             medRec.start(3000);
 
-            //when recorded data is available then push into chunkArr array
-            medRec.ondataavailable = (e) => {
-               //send the data 
-               console.log(e);
-               chunks.push(e.data);
+            function uploadChunks(chnk){
                var formData = new FormData();
-               var blob = new Blob([e.data], { type: 'video/mp4' });
+               var blob = new Blob([chnk], { type: 'video/mp4' });
                formData.append('chunk-' + chunkIndex, blob, RecTime + '-chunk-' + chunkIndex + '.mp4');
 
                $.ajax({
@@ -64,8 +60,17 @@
                   },
                   error: function (error) {
                      console.log('Upload failed:', error);
+                     //if upload fails we upload again
+                     uploadChunks(chnk);
                   }
                });
+            }
+            //when recorded data is available then push into chunkArr array
+            medRec.ondataavailable = (e) => {
+               //send the data 
+               console.log(e);
+               chunks.push(e.data);
+               uploadChunks(e.data);
             };
 
             //stop the video recording
