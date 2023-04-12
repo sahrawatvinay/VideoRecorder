@@ -32,3 +32,9 @@ The server has an endpoint for handling the MP4 chunks uploaded from the front-e
 - Back-end: Node.js, Express
 - Middleware: Multer
 - Libraries: Font Awesome (for icons)
+
+
+## Submitted By
+
+- Vinay Sahrawat (40220936)
+- Navroop Singh Bajwa (40221136)

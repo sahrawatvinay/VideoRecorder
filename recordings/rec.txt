@@ -1,0 +1,1 @@
+This folder will contain all the recordsings that will be stored be it the chunks or the consolidated video of the chunks.
