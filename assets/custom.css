@@ -1,0 +1,37 @@
+body {
+    text-align: center;
+    color: red;
+    font-size: 1.2em;
+ }
+
+ /*video start & end, Audio start & end button styling*/
+ #video_st,
+ #video_en,
+ #aud_st,
+ #aud_en {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+ }
+
+ #vidBox {
+    background-color: grey;
+ }
+
+ video {
+    background-color: gray;
+    display: block;
+    margin: 6px auto;
+    width: 420px;
+    height: 240px;
+ }
+
+ audio {
+    display: block;
+    margin: 6px auto;
+ }
+
+ a {
+    color: green;
+ }
