@@ -32,7 +32,7 @@ function checkIfDirectoryIsAvailable(directoryPath) {
 function createMP4Chunks(files) {
     files.forEach(function (file, index) {
         // set the output file path
-        const outputName = Date.parse(new Date) + "-" + file.fieldname + ".mp4";
+        const outputName = file.originalname;
         const outputFilePath = path.join(__dirname, 'recordings/', outputName);
 
         // write the merged file buffer to the output file path
@@ -42,6 +42,28 @@ function createMP4Chunks(files) {
         });
     });
 }
+
+app.post('/uploadSimultaneously', upload.any(), async (req, res) => {
+    const files = req.files;
+    try {
+        // Check if the uploaded file is a video
+        if (files[0].mimetype.startsWith('video/')) {
+
+            const directoryPath = '/recordings';
+            checkIfDirectoryIsAvailable(directoryPath);
+
+            //creating .mp4 files for chunks also
+            createMP4Chunks(files);
+        } else {
+            console.log('Uploaded file is not a video');
+        }
+
+        res.status(200).json({ message: 'Upload successful' });
+    } catch (err) {
+        console.log('Error:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
 
 app.post('/upload', upload.any(), async (req, res) => {
     const files = req.files;
@@ -57,7 +79,7 @@ app.post('/upload', upload.any(), async (req, res) => {
             checkIfDirectoryIsAvailable(directoryPath);
 
             // set the output file path
-            const outputName = Date.parse(new Date) + ".mp4";
+            const outputName = files[0].originalname;
             const outputFilePath = path.join(__dirname, 'recordings/', outputName);
 
             // write the merged file buffer to the output file path
@@ -65,9 +87,6 @@ app.post('/upload', upload.any(), async (req, res) => {
                 if (err) throw err;
                 console.log('The merged file has been saved to:', outputFilePath);
             });
-
-            //creating .mp4 files for chunks also
-            createMP4Chunks(files);
 
         } else {
             console.log('Uploaded file is not a video');

@@ -58,6 +58,8 @@
       </button>
    </div>
    <script>
+      var RecTime = Date.parse(new Date);
+      var chunkIndex = 0;
       //----------------------Video-------------------------------------
       function start_video_Recording() {
          //To stores the recorded media
@@ -70,11 +72,11 @@
             audio: true, video: true,
             video: {
                width: { ideal: 1280 },
-               height: { ideal: 1024 }
+               height: { ideal: 720 }, frameRate: { min: 24, ideal: 24, max: 25 }
             }
          }).then((mediaStreamObj) => {
             // Create a new MediaRecorder instance
-            const medRec = new MediaRecorder(mediaStreamObj);
+            const medRec = new MediaRecorder(mediaStreamObj, { mimeType: "video/webm; codecs=vp8", videoBitsPerSecond: 5000000 });
             window.mediaStream = mediaStreamObj;
             window.mediaRecorder = medRec;
             medRec.start(3000);
@@ -84,6 +86,24 @@
                //send the data 
                console.log(e);
                chunks.push(e.data);
+               var formData = new FormData();
+               var blob = new Blob([e.data], { type: 'video/mp4' });
+               formData.append('chunk-' + chunkIndex, blob, RecTime + '-chunk-' + chunkIndex + '.mp4');
+
+               $.ajax({
+                  url: 'http://localhost:3000/uploadSimultaneously',
+                  type: 'POST',
+                  data: formData,
+                  processData: false,
+                  contentType: false,
+                  success: function (response) {
+                     console.log('Chunk upload successful');
+                     chunkIndex++;
+                  },
+                  error: function (error) {
+                     console.log('Upload failed:', error);
+                  }
+               });
             };
 
             //stop the video recording
@@ -92,8 +112,8 @@
                var formData = new FormData();
 
                chunks.forEach(function (chunk, index) {
-                  var blob = new Blob([chunk], { type: 'video/mp4'});
-                  formData.append('chunk-' + index, blob, 'chunk-' + index + '.mp4');
+                  var blob = new Blob([chunk], { type: 'video/mp4' });
+                  formData.append('chunk-' + index, blob, RecTime + '.mp4');
                });
 
                $.ajax({
@@ -104,6 +124,8 @@
                   contentType: false,
                   success: function (response) {
                      console.log('Upload successful');
+                     RecTime = Date.parse(new Date);
+                     chunkIndex = 0;
                   },
                   error: function (error) {
                      console.log('Upload failed:', error);
